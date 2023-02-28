@@ -70,9 +70,9 @@ impl<T: ?Sized> SeqLock<T> {
     /// Thus reference counter wrappers like `Arc` and `Weak` are suggested to prevent the data from being
     /// reclaimed.
     #[inline(always)]
-    pub fn read<F>(&self, mut f: F)
+    pub fn read<F, I>(&self, mut f: F) -> I
     where
-        F: FnMut(&T),
+        F: FnMut(&T) -> I,
     {
         loop {
             let seq = unsafe { &*self.seq.get() };
@@ -85,12 +85,12 @@ impl<T: ?Sized> SeqLock<T> {
             smp_rmb();
 
             // Critical section
-            f(unsafe { &*self.lock.as_mut_ptr() });
+            let ret = f(unsafe { &*self.lock.as_mut_ptr() });
 
             // Retry if a writer broke the critical section.
             smp_rmb();
             if start == *seq {
-                break;
+                return ret;
             }
         }
     }
@@ -121,9 +121,9 @@ impl<T: ?Sized> SeqLock<T> {
     /// Thus reference counter wrappers like `Arc` and `Weak` are suggested to prevent the data from being
     /// reclaimed.
     #[inline(always)]
-    pub fn try_read<F>(&self, mut f: F) -> bool
+    pub fn try_read<F, I>(&self, mut f: F) -> Option<I>
     where
-        F: FnMut(&T),
+        F: FnMut(&T) -> I,
     {
         let seq = unsafe { &*self.seq.get() };
         // Check the sequence number if a writer has already been in the critical section
@@ -135,10 +135,14 @@ impl<T: ?Sized> SeqLock<T> {
         smp_rmb();
 
         // Critical section
-        f(unsafe { &*self.lock.as_mut_ptr() });
+        let ret = f(unsafe { &*self.lock.as_mut_ptr() });
 
         smp_rmb();
-        start == *seq
+        if start == *seq {
+            Some(ret)
+        } else {
+            None
+        }
     }
 }
 
@@ -149,7 +153,15 @@ impl<T: ?Sized + fmt::Debug> fmt::Debug for SeqLock<T> {
                 .and_then(|()| data.fmt(f))
                 .and_then(|()| write!(f, "}}"));
         });
-        write!(f, "{} result", if result { "Real" } else { "Uncertain" })
+        write!(
+            f,
+            "{} result",
+            if result.is_some() {
+                "Real"
+            } else {
+                "Uncertain"
+            }
+        )
     }
 }
 

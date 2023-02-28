@@ -5,6 +5,7 @@ Kernel synchronization primitives implemented in Rust:
 - [x] Local interrupt disabling: Forbid interrupt handling on a single CPU.
 - [x] Spin Lock: Lock with busy wait.
 - [x] Sleep Lock: Lock with blocking wait (sleep).
+- [x] Sequence Lock: Reader never blocks and writer never starves.  
 - [ ] Read-Copy-Update (RCU): Lock-free access to shared data structures through pointers.
 
 Features:
