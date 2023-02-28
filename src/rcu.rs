@@ -59,7 +59,9 @@ fn rcu_from<T: RcuType>(value: usize) -> T {
     }
 }
 
-/// A wrapper collecting the thin pointer and its drop handler for memory reclamation.
+/// Use `RcuDrop` after removing a data element from an RCU-protected data structure in order to register
+/// a callback function that will be invoked after the completion of all RCU read-side cirtical sections
+/// that might be referencing the data item.
 pub struct RcuDrop(usize, unsafe fn(usize));
 
 impl Drop for RcuDrop {

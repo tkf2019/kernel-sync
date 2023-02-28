@@ -6,7 +6,7 @@
 
 extern crate alloc;
 
-mod arch;
+pub mod arch;
 mod id;
 mod rcu;
 mod rwlock;
