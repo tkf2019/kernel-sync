@@ -2,24 +2,38 @@ name: GitHub Workflow
 
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - 'README.md'
-      - '.github/**'
+    branches: ["main"]
+
 
 jobs:
-  build-doc:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly-2022-08-08
-      - name: Build doc
-        run: cargo doc --no-deps
-      - name: Push to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+          toolchain: nightly
+          override: true
+      - name: Run cargo check
+        uses: actions-rs/cargo@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          command: check
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test

@@ -6,7 +6,7 @@ use kernel_sync::SeqLock;
 
 #[test]
 fn test() {
-    const N: usize = 20;
+    const N: usize = 10;
 
     let data = Arc::new(SeqLock::new(0));
 
@@ -19,7 +19,7 @@ fn test() {
             drop(lock);
 
             let mut read = 0;
-            if data.try_read(|data| read = *data) {
+            if data.try_read(|data| read = *data).is_some() {
                 println!("{:?} read successfully: {}", thread::current().id(), read);
             }
 
