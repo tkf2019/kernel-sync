@@ -8,7 +8,7 @@ extern crate alloc;
 
 pub mod arch;
 mod id;
-mod rcu;
+// mod rcu;
 mod rwlock;
 mod seqlock;
 mod sleeplock;
