@@ -14,7 +14,7 @@ mod seqlock;
 mod sleeplock;
 mod spinlock;
 
-pub use rcu::{reclamation, wait, RcuCell, RcuDrop, RcuDropFn, RcuReadGuard, RcuType};
+// pub use rcu::{reclamation, wait, RcuCell, RcuDrop, RcuDropFn, RcuReadGuard, RcuType};
 pub use seqlock::SeqLock;
 pub use sleeplock::{Sched as SleepLockSched, SleepLock, SleepLockGuard};
 pub use spinlock::{SpinLock, SpinLockGuard};
